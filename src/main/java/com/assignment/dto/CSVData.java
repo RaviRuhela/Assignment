@@ -6,7 +6,21 @@ public class CSVData {
 	private String name;
 	private String roles;
 	private String error;
+	private long roleId;
 	
+	
+	/**
+	 * @return the roleId
+	 */
+	public long getRoleId() {
+		return roleId;
+	}
+	/**
+	 * @param roleId the roleId to set
+	 */
+	public void setRoleId(long roleId) {
+		this.roleId = roleId;
+	}
 	/**
 	 * @return the error
 	 */

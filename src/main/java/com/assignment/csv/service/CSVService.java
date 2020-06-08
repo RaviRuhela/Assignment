@@ -17,6 +17,7 @@ import com.assignment.csv.message.ResponseMessage;
 import com.assignment.csv.model.Roles;
 import com.assignment.csv.model.Upload_Staging;
 import com.assignment.csv.model.User;
+import com.assignment.csv.model.UserRoleLink;
 import com.assignment.csv.repository.ErrorRepository;
 import com.assignment.csv.repository.RoleRepository;
 import com.assignment.csv.repository.TutorialRepository;
@@ -55,6 +56,8 @@ public class CSVService {
 				List<Roles> roles = new ArrayList<Roles>();
 				// list of staging table data
 				List<Upload_Staging> errors = new ArrayList<>();
+				//list of role linking
+				List<UserRoleLink> linking=new ArrayList<>();
 				// loop
 				for (CSVData item : fileData) {
 					// flag for error check
@@ -86,6 +89,13 @@ public class CSVService {
 					if (null != item.getRoles() && !item.getRoles().isEmpty()) {
 						String[] array = item.getRoles().split("#");
 						for (String rl : array) {
+							// check if role already exist
+							Roles existRole = roleRepository.findByRollName(rl);
+							// skip item it is already exist
+							if (null != existRole && existRole.getRoleName().equalsIgnoreCase(rl)) {
+								continue;
+							}
+								
 							Roles role = new Roles();
 							role.setRoleName(rl);
 							rol.add(role);
@@ -117,15 +127,18 @@ public class CSVService {
 				roleRepository.saveAll(roles);
 				// save errors
 				errorRepository.saveAll(errors);
+				//user-role linking
 				/*
-				 * for(int i=0;i<user.size();i++) { UserRoleLink combo=new UserRoleLink();
-				 * combo.setRoleId(roles.get(i).getId()); combo.setUserId(user.get(0).getId());
-				 * roleLink.add(combo); } comboRepository.saveAll(roleLink);
+				 * for (int i = 0; i < user.size(); i++) { UserRoleLink combo = new
+				 * UserRoleLink(); combo.setRoleId(roles.get(i).getId());
+				 * combo.setUserId(user.get(i).getId()); roleLink.add(combo); }
+				 * comboRepository.saveAll(roleLink);
 				 */
+
 				// setting response
 				resp.setNo_of_rows_failed(String.valueOf(fileData.size() - user.size()));
 				resp.setNo_of_rows_parsed(String.valueOf(fileData.size()));
-				if (errors == null || errors.size() == 0)
+				if (errors == null || errors.size() != 0)
 					resp.setError_file_url(key);
 
 			} else {
