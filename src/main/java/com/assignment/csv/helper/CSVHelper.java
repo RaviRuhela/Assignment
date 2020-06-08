@@ -22,69 +22,63 @@ import com.assignment.csv.model.Upload_Staging;
 import com.assignment.dto.CSVData;
 
 public class CSVHelper {
-  public static String TYPE = "text/csv";
+	public static String TYPE = "text/csv";
 
-  public static boolean hasCSVFormat(MultipartFile file) {
+	public static boolean hasCSVFormat(MultipartFile file) {
 
-    if (!TYPE.equals(file.getContentType())) {
-      return false;
-    }
+		if (!TYPE.equals(file.getContentType())) {
+			return false;
+		}
 
-    return true;
-  }
+		return true;
+	}
+
 //method to get csv Data in List form
-  public static List<CSVData> csvToRegister(InputStream is) {
-    try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-        CSVParser csvParser = new CSVParser(fileReader,
-            CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());) {
+	public static List<CSVData> csvToRegister(InputStream is) {
+		try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+				CSVParser csvParser = new CSVParser(fileReader,
+						CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());) {
 
-      List<CSVData> list = new ArrayList<CSVData>();
+			List<CSVData> list = new ArrayList<CSVData>();
 
-      Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+			Iterable<CSVRecord> csvRecords = csvParser.getRecords();
 
-      for (CSVRecord csvRecord : csvRecords) {
-    	  CSVData dto=new CSVData();
-    	  dto.setEmail(csvRecord.get("Email"));
-    	  dto.setName(csvRecord.get("Name"));
-    	  dto.setRoles(csvRecord.get("Roles"));
-    	  list.add(dto);
-      }
+			for (CSVRecord csvRecord : csvRecords) {
+				CSVData dto = new CSVData();
+				dto.setEmail(csvRecord.get("Email"));
+				dto.setName(csvRecord.get("Name"));
+				dto.setRoles(csvRecord.get("Roles"));
+				list.add(dto);
+			}
 
-      return list;
-    } catch (IOException e) {
-      throw new RuntimeException("fail to parse CSV file: " + e.getMessage());
-    }
-  }
+			return list;
+		} catch (IOException e) {
+			throw new RuntimeException("fail to parse CSV file: " + e.getMessage());
+		}
+	}
+
 //method to convert list to CSV
-  public static ByteArrayInputStream ToCSV(List<Upload_Staging> data) {
-    final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+	public static ByteArrayInputStream ToCSV(List<Upload_Staging> data) {
+		final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
 
-    //try with resource
-    try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-        CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
-    	 List<String> header = Arrays.asList(
-                 String.valueOf("Name"),
-                 "Email",
-                 "Role",
-                 "Error"
-               );
-    	 csvPrinter.printRecord(header);
-      for (Upload_Staging item : data) {
-        List<String> output = Arrays.asList(
-              String.valueOf(item.getName()),
-              item.getEmail(),
-              item.getRole(),
-              String.valueOf(item.getError())
-            );
-        	System.out.println(output);
-        csvPrinter.printRecord(output);
-      }
-
-      csvPrinter.flush();
-      return new ByteArrayInputStream(out.toByteArray());
-    } catch (IOException e) {
-      throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
-    }
-  }
+		// try with resource
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
+			// Header Column Names
+			List<String> header = Arrays.asList(String.valueOf("Name"), "Email", "Role", "Error");
+			// print header Columns
+			csvPrinter.printRecord(header);
+			// loop over staging Data
+			for (Upload_Staging item : data) {
+				List<String> output = Arrays.asList(String.valueOf(item.getName()), item.getEmail(), item.getRole(),
+						String.valueOf(item.getError()));
+				csvPrinter.printRecord(output);
+			}
+			csvPrinter.flush();
+			return new ByteArrayInputStream(out.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
+		}
+	}
 
 }

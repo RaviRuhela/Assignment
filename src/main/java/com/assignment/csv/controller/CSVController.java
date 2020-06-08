@@ -22,45 +22,42 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/api/csv")
 public class CSVController {
 
-  @Autowired
-  CSVService fileService;
+	@Autowired
+	CSVService fileService;
 
-  @PostMapping("/upload")
-  public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
-    String message = "";
-    ResponseMessage resp=new ResponseMessage();
-    ObjectMapper mapper=new ObjectMapper();
+	@PostMapping("/upload")
+	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
+		String message = "";
+		ResponseMessage resp = new ResponseMessage();
+		ObjectMapper mapper = new ObjectMapper();
 
-    //checking correct file format
-    if (CSVHelper.hasCSVFormat(file)) {
-      try {
-    	  //method to save file data
-    	  resp=fileService.save(file);
-    	  //File is saved successfully
-        message = "file Uploaded successfully: " + file.getOriginalFilename();
-        resp.setMessage(message);
-        return new ResponseEntity<>(mapper.writeValueAsString(resp),HttpStatus.OK);
-      } catch (Exception e) {
-        message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-         resp.setMessage(message);
-         return new ResponseEntity<>(mapper.writeValueAsString(resp),HttpStatus.OK);
-      }
-    }
-    message = "Please upload a csv file!";
-    resp.setMessage(message);
-    return new ResponseEntity<>(mapper.writeValueAsString(resp),HttpStatus.OK);
-  }
+		// checking correct file format
+		if (CSVHelper.hasCSVFormat(file)) {
+			try {
+				// method to save file data
+				resp = fileService.save(file);
+				// File is saved successfully
+				message = "file Uploaded successfully: " + file.getOriginalFilename();
+				resp.setMessage(message);
+				return new ResponseEntity<>(mapper.writeValueAsString(resp), HttpStatus.OK);
+			} catch (Exception e) {
+				message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+				resp.setMessage(message);
+				return new ResponseEntity<>(mapper.writeValueAsString(resp), HttpStatus.OK);
+			}
+		}
+		message = "Please upload a csv file!";
+		resp.setMessage(message);
+		return new ResponseEntity<>(mapper.writeValueAsString(resp), HttpStatus.OK);
+	}
 
+	@PostMapping("/download")
+	public ResponseEntity<Resource> getFile(@RequestParam("url") String url) {
+		String filename = "errors.csv";
+		InputStreamResource file = new InputStreamResource(fileService.load(url));
 
-  @PostMapping("/download")
-  public ResponseEntity<Resource> getFile(@RequestParam("url") String url) {
-    String filename = "errors.csv";
-    InputStreamResource file = new InputStreamResource(fileService.load(url));
-
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-        .contentType(MediaType.parseMediaType("application/csv"))
-        .body(file);
-  }
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+				.contentType(MediaType.parseMediaType("application/csv")).body(file);
+	}
 
 }
