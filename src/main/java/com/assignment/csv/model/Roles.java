@@ -1,10 +1,13 @@
 package com.assignment.csv.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -18,6 +21,24 @@ public class Roles {
 
   @Column(name = "RoleName")
   private String roleName;
+  
+  @ManyToMany(mappedBy = "roles")
+  List<User> user;
+  
+
+/**
+ * @return the user
+ */
+public List<User> getUser() {
+	return user;
+}
+
+/**
+ * @param user the user to set
+ */
+public void setUser(List<User> user) {
+	this.user = user;
+}
 
 /**
  * @return the id

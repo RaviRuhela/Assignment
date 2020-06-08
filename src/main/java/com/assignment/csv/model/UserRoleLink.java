@@ -7,15 +7,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity
-@Table(name = "user_role_link")
+//@Entity
+//@Table(name = "user_role_link")
 public class UserRoleLink {
 
   @Id
   @GeneratedValue(strategy =GenerationType.AUTO)
   @Column(name = "id")
   private long id;
-  
+
   @Column(name = "userId")
   private long userId;
   

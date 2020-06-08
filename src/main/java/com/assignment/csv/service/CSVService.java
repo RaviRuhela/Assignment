@@ -17,17 +17,16 @@ import com.assignment.csv.message.ResponseMessage;
 import com.assignment.csv.model.Roles;
 import com.assignment.csv.model.Upload_Staging;
 import com.assignment.csv.model.User;
-import com.assignment.csv.model.UserRoleLink;
+//import com.assignment.csv.model.UserRoleLink;
 import com.assignment.csv.repository.ErrorRepository;
 import com.assignment.csv.repository.RoleRepository;
-import com.assignment.csv.repository.TutorialRepository;
+
 import com.assignment.csv.repository.UserRepository;
 import com.assignment.dto.CSVData;
 
 @Service
 public class CSVService {
-	@Autowired
-	TutorialRepository repository;
+	
 	@Autowired
 	UserRepository userRepository;
 	@Autowired
@@ -57,7 +56,6 @@ public class CSVService {
 				// list of staging table data
 				List<Upload_Staging> errors = new ArrayList<>();
 				//list of role linking
-				List<UserRoleLink> linking=new ArrayList<>();
 				// loop
 				for (CSVData item : fileData) {
 					// flag for error check
@@ -93,6 +91,7 @@ public class CSVService {
 							Roles existRole = roleRepository.findByRollName(rl);
 							// skip item it is already exist
 							if (null != existRole && existRole.getRoleName().equalsIgnoreCase(rl)) {
+								rol.add(existRole);
 								continue;
 							}
 								
@@ -106,8 +105,10 @@ public class CSVService {
 					}
 					// check flag and add object into list
 					if (flag) {
+						roleRepository.saveAll(rol);
+						usr.setRoles(rol);
 						user.add(usr);
-						roles.addAll(rol);
+						//roles.addAll(rol);
 					}
 					// else add into error list
 					else {
@@ -123,17 +124,8 @@ public class CSVService {
 				}
 				// save users
 				userRepository.saveAll(user);
-				// save roles
-				roleRepository.saveAll(roles);
 				// save errors
 				errorRepository.saveAll(errors);
-				//user-role linking
-				/*
-				 * for (int i = 0; i < user.size(); i++) { UserRoleLink combo = new
-				 * UserRoleLink(); combo.setRoleId(roles.get(i).getId());
-				 * combo.setUserId(user.get(i).getId()); roleLink.add(combo); }
-				 * comboRepository.saveAll(roleLink);
-				 */
 
 				// setting response
 				resp.setNo_of_rows_failed(String.valueOf(fileData.size() - user.size()));
